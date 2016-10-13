@@ -12,6 +12,9 @@ import top.wuhaojie.repos.UserRepository;
 
 import java.util.List;
 
+import static top.wuhaojie.utils.TextUtils.isEmpty;
+import static top.wuhaojie.utils.TextUtils.isNull;
+
 /**
  * Author: wuhaojie
  * E-mail: w19961009@126.com
@@ -26,11 +29,23 @@ public class UserControler {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity register(String name, String password) {
+    public ResponseEntity register(String name, String password, Integer age, String text) {
+        // check parameters
+        if (isEmpty(name)
+                || isEmpty(password)
+                || isNull(age)
+                || isEmpty(text)) {
+            return new ResponseEntity(Constants.ERROR, "parameters is null");
+        }
+        // create a user object
         User user = new User(name, password);
+        user.setAge(age);
+        user.setText(text);
+        // save to database
         User save = mUserRepository.save(user);
-        ResponseEntity entity = new ResponseEntity(Constants.SUCCESS, "");
-        if (user.equals(save)) {
+        // create ResponseEntity
+        ResponseEntity entity = new ResponseEntity(Constants.SUCCESS, "success");
+        if (!user.equals(save)) {
             entity.setCode(Constants.ERROR);
             entity.setMsg("insert to database error");
         }
@@ -41,8 +56,11 @@ public class UserControler {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity login(String name, String password) {
+        if (isEmpty(name) || isEmpty(password)) {
+            return new ResponseEntity(Constants.ERROR, "name or password is null");
+        }
         List<User> users = mUserRepository.findByName(name);
-        ResponseEntity<User> entity = new ResponseEntity<>(Constants.SUCCESS, "");
+        ResponseEntity<User> entity = new ResponseEntity<>(Constants.SUCCESS, "success");
         for (User u : users) {
             if (u.getPassword().equals(password)) {
                 entity.setData(u);

@@ -26,7 +26,7 @@ public class User {
 
     private String password;
 
-    private int age;
+    private Integer age;
 
     private String text;
 
